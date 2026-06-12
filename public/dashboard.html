@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <style>
+      :root {
+        --bg0: #00060d;
+        --bg1: #020a16;
+        --blue: #00b7ff;
+        --violet: #5a5cff;
+        --text: #e9f7ff;
+        --mx: 50;
+        --my: 50;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(800px 500px at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(0, 183, 255, 0.18), transparent 60%),
+          radial-gradient(700px 450px at 80% 15%, rgba(90, 92, 255, 0.18), transparent 55%),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        overflow: hidden;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      }
+
+      .topbar {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        pointer-events: none;
+      }
+      .pill {
+        pointer-events: auto;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(0, 183, 255, 0.18);
+        color: rgba(233, 247, 255, 0.92);
+        backdrop-filter: blur(8px);
+        font-size: 13px;
+      }
+      .pill a {
+        color: rgba(233, 247, 255, 0.92);
+        text-decoration: none;
+        border-bottom: 1px dashed rgba(0, 183, 255, 0.5);
+      }
+
+      .pill .adminLink {
+        pointer-events: auto;
+      }
+
+      .pill .adminLink[aria-disabled="true"] {
+        pointer-events: none;
+        opacity: 0.45;
+        border-bottom-color: rgba(233, 247, 255, 0.25) !important;
+      }
+
+      .center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .glow-wrap {
+        text-align: center;
+        transform: translateZ(0);
+      }
+
+      .title {
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        font-size: clamp(42px, 7vw, 96px);
+        line-height: 1.05;
+        margin: 0;
+        color: var(--text);
+        position: relative;
+        transform: perspective(900px) rotateX(calc((50 - var(--my)) * 0.15deg)) rotateY(calc((var(--mx) - 50) * 0.2deg));
+        text-shadow:
+          0 0 10px rgba(0, 183, 255, 0.45),
+          0 0 22px rgba(0, 183, 255, 0.25),
+          0 0 45px rgba(90, 92, 255, 0.18);
+      }
+
+      .title::before {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        color: transparent;
+        background: linear-gradient(90deg, rgba(0, 183, 255, 0.95), rgba(90, 92, 255, 0.95));
+        -webkit-background-clip: text;
+        background-clip: text;
+        filter: drop-shadow(0 0 18px rgba(0, 183, 255, 0.35));
+        opacity: 0.9;
+        transform: translate(calc((var(--mx) - 50) * 0.08px), calc((50 - var(--my)) * 0.08px));
+        pointer-events: none;
+      }
+
+      .scanlines {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.035),
+          rgba(255, 255, 255, 0.035) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+        mix-blend-mode: overlay;
+        opacity: 0.25;
+        pointer-events: none;
+      }
+
+      .corner-hue {
+        position: absolute;
+        inset: -100px;
+        background:
+          conic-gradient(from 180deg at 50% 50%, rgba(0, 183, 255, 0.12), transparent 40%, rgba(90, 92, 255, 0.1), transparent 70%);
+        filter: blur(28px);
+        opacity: 0.65;
+        pointer-events: none;
+        transform: rotate(0deg);
+        animation: floatHue 10s ease-in-out infinite;
+      }
+
+      @keyframes floatHue {
+        0%, 100% { transform: rotate(-6deg) scale(1); }
+        50% { transform: rotate(6deg) scale(1.05); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="pill" style="display:flex; align-items:center; gap:10px; position:relative;">
+        <button id="menuBtn" type="button" style="background:transparent; border:0; color:inherit; padding:0; cursor:pointer; font:inherit; display:flex; align-items:center; gap:8px;">
+          <span id="menuLabel">Signed in</span>
+          <span aria-hidden="true" style="opacity:0.85;">▾</span>
+        </button>
+
+        <div id="menu" style="display:none; position:absolute; top: calc(100% + 10px); left:0; min-width: 210px; background: rgba(0,0,0,0.55); border: 1px solid rgba(0, 183, 255, 0.18); border-radius: 12px; padding: 8px; backdrop-filter: blur(8px); z-index: 50;">
+          <a id="adminMenuLink" class="adminLink" href="/admin" style="display:none; padding:10px 12px; border-radius:10px; text-decoration:none; border-bottom: 1px dashed rgba(0, 183, 255, 0.25);">
+            Admin Panel
+          </a>
+
+          <div id="adminMenuDisabled" class="adminLink" aria-disabled="true" style="display:none; padding:10px 12px; border-radius:10px; color: rgba(233, 247, 255, 0.45); opacity:0.85; cursor:not-allowed;">
+            Admin Panel (Admins only)
+          </div>
+
+          <a href="/dashboard" style="display:block; padding:10px 12px; border-radius:10px; text-decoration:none;">
+            Dashboard
+          </a>
+        </div>
+      </div>
+
+      <form method="POST" action="/logout" id="logoutForm" style="pointer-events:auto; z-index:1000;">
+        <button class="pill" id="logoutBtn" style="cursor:pointer; position:relative; z-index:1001; pointer-events:auto;" type="submit">Logout</button>
+      </form>
+
+    </div>
+
+
+    <div class="corner-hue"></div>
+    <div class="center">
+      <div class="glow-wrap">
+        <h1 class="title" id="title" data-text="Saas Console">Saas Console</h1>
+      </div>
+    </div>
+
+    <div class="scanlines"></div>
+
+    <script>
+      const root = document.documentElement;
+      const title = document.getElementById('title');
+
+      function setVars(x, y) {
+        const mx = Math.max(0, Math.min(100, (x / window.innerWidth) * 100));
+        const my = Math.max(0, Math.min(100, (y / window.innerHeight) * 100));
+        root.style.setProperty('--mx', mx.toFixed(2));
+        root.style.setProperty('--my', my.toFixed(2));
+      }
+
+      window.addEventListener('mousemove', (e) => {
+        setVars(e.clientX, e.clientY);
+        const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+        const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        const tiltX = (-dy * 3).toFixed(2);
+        const tiltY = (dx * 4).toFixed(2);
+        title.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      });
+
+      window.addEventListener('mouseleave', () => {
+        root.style.setProperty('--mx', 50);
+        root.style.setProperty('--my', 50);
+        title.style.transform = '';
+      });
+
+      // Dropdown behavior + user/role gating
+      const menuBtn = document.getElementById('menuBtn');
+      const menu = document.getElementById('menu');
+      const adminMenuLink = document.getElementById('adminMenuLink');
+      const adminMenuDisabled = document.getElementById('adminMenuDisabled');
+      const menuLabel = document.getElementById('menuLabel');
+
+      function closeMenu() {
+        menu.style.display = 'none';
+      }
+
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Don't close the menu when clicking inside the topbar/menu area
+      const topbar = document.querySelector('.topbar');
+      window.addEventListener('click', (e) => {
+        const clickedMenu = menu && menu.contains(e.target);
+        const clickedBtn = menuBtn && menuBtn.contains(e.target);
+        if (clickedBtn || clickedMenu) return;
+        closeMenu();
+      });
+      menu.addEventListener('click', (e) => e.stopPropagation());
+
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+
+      fetch('/_session')
+        .then(r => r.json())
+        .then(data => {
+          const role = data.user?.role;
+          const email = data.user?.email || '';
+          menuLabel.textContent = `Signed in as ${email}`;
+
+          if (role === 'admin') {
+            adminMenuLink.style.display = 'block';
+            adminMenuDisabled.style.display = 'none';
+          } else {
+            adminMenuLink.style.display = 'none';
+            adminMenuDisabled.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          menuLabel.textContent = 'Signed in';
+        });
+
+      // Harden logout click -> ensure POST triggers and redirects to /login
+      const logoutBtn = document.getElementById('logoutBtn');
+      const logoutForm = document.getElementById('logoutForm');
+      if (logoutBtn && logoutForm) {
+        logoutBtn.addEventListener('click', (e) => {
+          // Force-submit in case of any interference with click handling.
+          // (Server handles POST /logout and redirects to /login.)
+          if (!logoutForm.checkValidity || logoutForm.checkValidity()) {
+            // Prevent double-submit risk by submitting only when not already handled.
+            // If browser already submits, this no-ops harmlessly.
+            logoutForm.submit();
+          }
+        });
+      }
+
+    </script>
+
+  </body>
+</html>
+

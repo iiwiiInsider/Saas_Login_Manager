@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup</title>
+    <style>
+      :root {
+        --bg: #05060a;
+        --card: rgba(10, 15, 30, 0.7);
+        --border: rgba(0, 200, 255, 0.25);
+        --text: #dbe7ff;
+        --muted: rgba(219, 231, 255, 0.65);
+        --accent: #00b7ff;
+        --accent2: #5a5cff;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background: radial-gradient(1200px 700px at 20% 15%, rgba(90, 92, 255, 0.25), transparent 60%),
+          radial-gradient(900px 600px at 85% 35%, rgba(0, 183, 255, 0.2), transparent 55%), var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+      p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin: 12px 0 6px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--text);
+        outline: none;
+      }
+      input:focus {
+        border-color: rgba(0, 183, 255, 0.55);
+        box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.15);
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 16px;
+      }
+      button {
+        flex: 1;
+        cursor: pointer;
+        border: 0;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        color: #041018;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+      }
+      button:hover {
+        filter: brightness(1.06);
+      }
+      .link {
+        margin-top: 14px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .link a {
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px dashed rgba(0, 183, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Create account</h1>
+      <p>Passwords are stored as bcrypt hashes (non-retrievable).</p>
+
+      <form method="POST" action="/signup">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="username" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" />
+
+        <div class="row">
+          <button type="submit">Sign up</button>
+        </div>
+      </form>
+
+      <div class="link">
+        Already have an account? <a href="/login">Back to login</a>
+      </div>
+    </div>
+  </body>
+</html>
+

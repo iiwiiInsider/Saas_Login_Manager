@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin</title>
+    <style>
+      :root {
+        --bg: #05060a;
+        --text: #dbe7ff;
+        --muted: rgba(219, 231, 255, 0.65);
+        --accent: #00b7ff;
+        --accent2: #5a5cff;
+        --card: rgba(10, 15, 30, 0.7);
+        --border: rgba(0, 200, 255, 0.22);
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(1100px 700px at 20% 10%, rgba(90, 92, 255, 0.25), transparent 62%),
+          radial-gradient(900px 600px at 80% 35%, rgba(0, 183, 255, 0.18), transparent 56%), var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        padding: 24px;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+        backdrop-filter: blur(10px);
+      }
+      h1 { margin: 0 0 6px; }
+      p { margin: 0 0 18px; color: var(--muted); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      label { display:block; font-size: 13px; color: var(--muted); margin: 10px 0 6px; }
+      input { width:100%; box-sizing:border-box; padding: 11px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.25); color: var(--text); outline:none; }
+      input:focus { border-color: rgba(0, 183, 255, 0.55); box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.15); }
+      button {
+        cursor:pointer;
+        border: 0;
+        padding: 11px 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        color: #041018;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+      }
+      .btnrow { display:flex; gap: 10px; align-items:center; margin-top: 14px; }
+      .msg { margin-top: 12px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(0,183,255,0.25); background: rgba(0,183,255,0.08); display:none; }
+      table { width:100%; border-collapse: collapse; margin-top: 16px; }
+      th, td { text-align:left; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      th { color: rgba(219,231,255,0.85); font-size: 13px; font-weight: 900; }
+      td { font-size: 14px; }
+      .danger { background: linear-gradient(90deg, #ff5e5e, #ff8b3d); }
+      a { color: var(--text); }
+      .top { display:flex; justify-content: space-between; align-items:center; gap:12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="pill" style="display:flex; align-items:center; gap:10px; position:relative;">
+          <button id="menuBtn" type="button" style="background:transparent; border:0; color:inherit; padding:0; cursor:pointer; font:inherit; display:flex; align-items:center; gap:8px;">
+            <span id="menuLabel">Signed in</span>
+            <span aria-hidden="true" style="opacity:0.85;">▾</span>
+          </button>
+
+          <div id="menu" style="display:none; position:absolute; top: calc(100% + 10px); left:0; min-width: 210px; background: rgba(0,0,0,0.55); border: 1px solid rgba(0, 183, 255, 0.18); border-radius: 12px; padding: 8px; backdrop-filter: blur(8px); z-index: 50;">
+            <a id="adminMenuLink" class="adminLink" href="/admin" style="display:none; padding:10px 12px; border-radius:10px; text-decoration:none; border-bottom: 1px dashed rgba(0, 183, 255, 0.25);">
+              Admin Panel
+            </a>
+
+            <div id="adminMenuDisabled" class="adminLink" aria-disabled="true" style="display:none; padding:10px 12px; border-radius:10px; color: rgba(233, 247, 255, 0.45); opacity:0.85; cursor:not-allowed;">
+              Admin Panel (Admins only)
+            </div>
+
+            <a href="/dashboard" style="display:block; padding:10px 12px; border-radius:10px; text-decoration:none;">
+              Dashboard
+            </a>
+          </div>
+        </div>
+
+        <form method="POST" action="/logout" id="logoutForm" style="pointer-events:auto; z-index:1000;">
+          <button class="pill" id="logoutBtn" style="cursor:pointer; position:relative; z-index:1001; pointer-events:auto;" type="submit">Logout</button>
+
+        </form>
+
+      </div>
+
+      <div class="top">
+        <div>
+          <h1>Admin Panel</h1>
+          <p>Manage users (delete / change password / change email). Stored credentials remain bcrypt hashes.</p>
+        </div>
+        <div><a href="/dashboard">← Back to dashboard</a></div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <h3 style="margin:0 0 6px;">Delete user</h3>
+          <label>Email</label>
+          <input id="delEmail" placeholder="user@example.com" />
+          <div class="btnrow">
+            <button class="danger" id="btnDelete">Delete</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 6px;">Change password</h3>
+          <label>Email</label>
+          <input id="pwEmail" placeholder="user@example.com" />
+          <label>New password</label>
+          <input id="pwNew" type="password" placeholder="Min 8 chars" />
+          <div class="btnrow">
+            <button id="btnPw">Update password</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 6px;">Change email</h3>
+          <label>Current email</label>
+          <input id="emEmail" placeholder="user@example.com" />
+          <label>New email</label>
+          <input id="emNew" placeholder="new@example.com" />
+          <div class="btnrow">
+            <button id="btnEm">Update email</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 6px;">Users</h3>
+          <p style="margin-top:0;">Non-admin users only.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody">
+              <tr><td colspan="2" style="color:rgba(219,231,255,0.6);">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <script>
+      const msg = document.getElementById('msg');
+      function showMessage(text, ok=true) {
+        msg.style.display = 'block';
+        msg.textContent = text;
+        msg.style.borderColor = ok ? 'rgba(0,183,255,0.25)' : 'rgba(255,80,80,0.35)';
+        msg.style.background = ok ? 'rgba(0,183,255,0.08)' : 'rgba(255,80,80,0.08)';
+      }
+
+      async function loadUsers() {
+        const r = await fetch('/admin/users');
+        const data = await r.json();
+        const body = document.getElementById('usersBody');
+        body.innerHTML = '';
+        const users = data.users || [];
+        if (!users.length) {
+          body.innerHTML = '<tr><td colspan="2" style="color:rgba(219,231,255,0.6);">No users</td></tr>';
+          return;
+        }
+        for (const u of users) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${u.email}</td><td>${u.created_at}</td>`;
+          body.appendChild(tr);
+        }
+      }
+
+      document.getElementById('btnDelete').addEventListener('click', async () => {
+        const email = document.getElementById('delEmail').value.trim().toLowerCase();
+        if (!email) return showMessage('Enter an email to delete', false);
+        const r = await fetch('/admin/users/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        }).catch(() => null);
+        const data = r ? await r.json() : null;
+        if (!data || !data.ok) return showMessage(data?.error || 'Delete failed', false);
+        showMessage('User deleted');
+        await loadUsers();
+      });
+
+      document.getElementById('btnPw').addEventListener('click', async () => {
+        const email = document.getElementById('pwEmail').value.trim().toLowerCase();
+        const newPassword = document.getElementById('pwNew').value;
+        const r = await fetch('/admin/users/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, newPassword })
+        }).catch(() => null);
+        const data = r ? await r.json() : null;
+        if (!data || !data.ok) return showMessage(data?.error || 'Update failed', false);
+        showMessage('Password updated');
+      });
+
+      document.getElementById('btnEm').addEventListener('click', async () => {
+        const email = document.getElementById('emEmail').value.trim().toLowerCase();
+        const newEmail = document.getElementById('emNew').value.trim().toLowerCase();
+        const r = await fetch('/admin/users/change-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, newEmail })
+        }).catch(() => null);
+        const data = r ? await r.json() : null;
+        if (!data || !data.ok) return showMessage(data?.error || 'Update failed', false);
+        showMessage('Email updated');
+        await loadUsers();
+      });
+
+      // Dropdown behavior + user/role gating
+      const menuBtn = document.getElementById('menuBtn');
+      const menu = document.getElementById('menu');
+      const adminMenuLink = document.getElementById('adminMenuLink');
+      const adminMenuDisabled = document.getElementById('adminMenuDisabled');
+      const menuLabel = document.getElementById('menuLabel');
+
+      function closeMenu() {
+        menu.style.display = 'none';
+      }
+
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Don't close the menu when clicking inside the topbar/menu area
+      const topbar = document.querySelector('.topbar');
+      window.addEventListener('click', (e) => {
+        const clickedMenu = menu && menu.contains(e.target);
+        const clickedBtn = menuBtn && menuBtn.contains(e.target);
+        if (clickedBtn || clickedMenu) return;
+        closeMenu();
+      });
+
+      menu.addEventListener('click', (e) => e.stopPropagation());
+
+
+      document.querySelectorAll('#menu a').forEach((a) => {
+        a.addEventListener('click', () => closeMenu());
+      });
+
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+
+      fetch('/_session')
+        .then(r => r.json())
+        .then(data => {
+          const role = data.user?.role;
+          const email = data.user?.email || '';
+          menuLabel.textContent = `Signed in as ${email}`;
+
+          if (role === 'admin') {
+            adminMenuLink.style.display = 'block';
+            adminMenuDisabled.style.display = 'none';
+          } else {
+            adminMenuLink.style.display = 'none';
+            adminMenuDisabled.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          menuLabel.textContent = 'Signed in';
+        });
+
+      // Logout: form POSTs to /logout (server redirects to /login)
+      const logoutBtn = document.getElementById('logoutBtn');
+      const logoutForm = document.getElementById('logoutForm');
+      if (logoutBtn && logoutForm) {
+        logoutBtn.addEventListener('click', (e) => {
+          // Ensure click always triggers the POST, even if other handlers interfere.
+          e.stopPropagation();
+          logoutForm.submit();
+        });
+      }
+
+
+
+      loadUsers();
+    </script>
+  </body>
+</html>
+
+
